@@ -1,0 +1,45 @@
+name: Merge Linux Kernel
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 1 * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+
+      - name: Set environment variables from .env file
+        run: |
+          CONFIG_ENV=$(cat .env | grep -w "CONFIG_ENV" | head -n 1 | cut -d "=" -f 2)
+          echo "CUSTOM_KERNEL_BRANCH=$(cat $CONFIG_ENV | grep -w "CUSTOM_KERNEL_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+          echo "CUSTOM_KERNEL_REPO=$(cat $CONFIG_ENV | grep -w "CUSTOM_KERNEL_REPO" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+          echo "SOURCE_BRANCH=$(cat $CONFIG_ENV | grep -w "SOURCE_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+          echo "SOURCE_REPO=$(cat $CONFIG_ENV | grep -w "SOURCE_REPO" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
+
+      - name: Clone the custom kernel repository
+        run: |
+          git clone ${{ env.CUSTOM_KERNEL_REPO }} custom-kernel
+          cd custom-kernel
+
+      - name: Fetch the latest stable branch from the source repository
+        run: |
+          git remote add source-repo ${{ env.SOURCE_REPO }}
+          git fetch source-repo
+          git checkout -b source-branch source-repo/${{ env.SOURCE_BRANCH }}
+
+      - name: Merge the latest stable branch into the custom kernel
+        run: |
+          git checkout ${{ env.CUSTOM_KERNEL_BRANCH }}
+          git merge source-branch
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.PAT_TOKEN }}
+          repository: Test/test
+          force: true
