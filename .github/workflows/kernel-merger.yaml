@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Check out the code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Set environment variables from .env file
         run: |
@@ -23,23 +25,21 @@ jobs:
 
       - name: Clone the custom kernel repository
         run: |
-          git clone "https://github.com/${{ env.CUSTOM_KERNEL_REPO }}" custom-kernel
+          git clone -b ${{ env.CUSTOM_KERNEL_BRANCH }} "https://github.com/${{ env.CUSTOM_KERNEL_REPO }}" custom-kernel
+
+      - name: Fetch & Merge
+        run: |
           cd custom-kernel
-
-      - name: Fetch the latest stable branch from the source repository
-        run: |
           git remote add source-repo "https://github.com/${{ env.SOURCE_REPO }}"
-          git fetch source-repo
-          git checkout -b source-branch source-repo/${{ env.SOURCE_BRANCH }}
-
-      - name: Merge the latest stable branch into the custom kernel
-        run: |
-          git checkout ${{ env.CUSTOM_KERNEL_BRANCH }}
-          git merge source-branch
+          git fetch source-repo --tags
+          git merge --allow-unrelated-histories source-repo/${{ env.SOURCE_BRANCH }}
+          git remote source-repo
 
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
+          directory: "custom-kernel"
           github_token: ${{ secrets.PAT_TOKEN }}
           repository: ${{ env.CUSTOM_KERNEL_REPO }}
+          branch: ${{ env.CUSTOM_KERNEL_BRANCH }}
           force: true
