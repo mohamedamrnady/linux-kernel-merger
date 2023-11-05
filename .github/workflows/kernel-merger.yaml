@@ -25,7 +25,7 @@ jobs:
 
       - name: Clone the custom kernel repository
         run: |
-          git clone -b ${{ env.CUSTOM_KERNEL_BRANCH }} "https://github.com/${{ env.CUSTOM_KERNEL_REPO }}" custom-kernel
+          git clone -b ${{ env.CUSTOM_KERNEL_BRANCH }} --single-branch "https://github.com/${{ env.CUSTOM_KERNEL_REPO }}" custom-kernel
 
       - name: Fetch & Merge
         run: |
