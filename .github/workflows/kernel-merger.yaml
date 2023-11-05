@@ -23,12 +23,12 @@ jobs:
 
       - name: Clone the custom kernel repository
         run: |
-          git clone https://github.com/${{ env.CUSTOM_KERNEL_REPO }} custom-kernel
+          git clone "https://github.com/${{ env.CUSTOM_KERNEL_REPO }}" custom-kernel
           cd custom-kernel
 
       - name: Fetch the latest stable branch from the source repository
         run: |
-          git remote add source-repo https://github.com/${{ env.SOURCE_REPO }}
+          git remote add source-repo "https://github.com/${{ env.SOURCE_REPO }}"
           git fetch source-repo
           git checkout -b source-branch source-repo/${{ env.SOURCE_BRANCH }}
 
