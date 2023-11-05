@@ -15,7 +15,7 @@ jobs:
 
       - name: Set environment variables from .env file
         run: |
-          CONFIG_ENV=$(cat .env | grep -w "CONFIG_ENV" | head -n 1 | cut -d "=" -f 2)
+          CONFIG_ENV=$(cat config.env | grep -w "CONFIG_ENV" | head -n 1 | cut -d "=" -f 2)
           echo "CUSTOM_KERNEL_BRANCH=$(cat $CONFIG_ENV | grep -w "CUSTOM_KERNEL_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
           echo "CUSTOM_KERNEL_REPO=$(cat $CONFIG_ENV | grep -w "CUSTOM_KERNEL_REPO" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
           echo "SOURCE_BRANCH=$(cat $CONFIG_ENV | grep -w "SOURCE_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
